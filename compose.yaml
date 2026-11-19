@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: github_repositories
+      POSTGRES_USER: github_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-github_password}
+    ports:
+      - "5433:5432"
+    volumes:
+      - github_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U github_user -d github_repositories"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/github_repositories
+      DB_USERNAME: github_user
+      DB_PASSWORD: ${DB_PASSWORD:-github_password}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      PORT: 8080
+    restart: on-failure
+volumes:
+  github_pg_data:

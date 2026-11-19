@@ -1,0 +1,43 @@
+{
+  "info": {
+    "name": "FreightFox - GitHub Repository Searcher",
+    "description": "Import in Postman. Change baseUrl for production; no GitHub login required for public search.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{"key": "baseUrl", "value": "http://localhost:8081"}],
+  "item": [
+    {
+      "name": "01 Search repositories (POST)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": "{{baseUrl}}/api/github/search",
+        "body": {"mode": "raw", "raw": "{\n  \"query\": \"spring boot\",\n  \"language\": \"Java\",\n  \"sort\": \"stars\"\n}"}
+      }
+    },
+    {
+      "name": "02 Retrieve saved repositories (GET)",
+      "request": {"method": "GET", "url": "{{baseUrl}}/api/github/repositories?language=Java&minStars=100&sort=stars"}
+    },
+    {
+      "name": "03 All stored repositories (GET)",
+      "request": {"method": "GET", "url": "{{baseUrl}}/api/github/repositories"}
+    },
+    {
+      "name": "04 Invalid sort (POST, expect 400)",
+      "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+      "url": "{{baseUrl}}/api/github/search",
+      "body": {"mode": "raw", "raw": "{\n  \"query\": \"spring\",\n  \"sort\": \"trending\"\n}"}}
+    },
+    {
+      "name": "05 Empty query (POST, expect 400)",
+      "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+      "url": "{{baseUrl}}/api/github/search",
+      "body": {"mode": "raw", "raw": "{\n  \"query\": \"\"\n}"}}
+    },
+    {
+      "name": "06 Health check",
+      "request": {"method": "GET", "url": "{{baseUrl}}/actuator/health"}
+    }
+  ]
+}
